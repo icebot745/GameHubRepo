@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OP Game Hub</title>
+<meta name="description" content="Browser games by OP Game Hub. Free to play, no download.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;600&display=swap">
+<style>
+/* Layout: arcade marquee title, then a grid of game cabinets. Single dark neon look, shared with the games. */
+:root {
+  --void: #07060f;
+  --panel: #110e22;
+  --cyan: #2ef6ff;
+  --magenta: #ff2bd6;
+  --lime: #b6ff3b;
+  --ink: #e9e6ff;
+  --dim: #8d87b8;
+  --display: "Audiowide", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: var(--void); color: var(--ink); font-family: var(--body); font-size: 18px;
+  background-image: linear-gradient(rgba(138,91,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(138,91,255,.12) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 48px max(16px, env(safe-area-inset-left, 0px)) 64px; display: flex; flex-direction: column; gap: 36px; }
+header { display: flex; flex-direction: column; gap: 10px; }
+h1 {
+  margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 64px); letter-spacing: .03em; line-height: 1.05;
+  color: var(--cyan); text-shadow: 0 0 10px var(--cyan), 0 0 30px rgba(46,246,255,.45); text-wrap: balance;
+}
+h1 span { color: var(--magenta); text-shadow: 0 0 10px var(--magenta), 0 0 30px rgba(255,43,214,.45); }
+.tag { margin: 0; color: var(--dim); font-size: 20px; max-width: 50ch; }
+h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--lime); letter-spacing: .08em; text-transform: uppercase; }
+.games { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 20px; }
+.card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit; background: var(--panel);
+  border: 2px solid var(--magenta); border-radius: 6px; overflow: hidden;
+  box-shadow: 0 0 16px rgba(255,43,214,.35); transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover, .card:focus-visible { transform: translateY(-3px); box-shadow: 0 0 26px rgba(255,43,214,.7); outline: none; }
+.card canvas { display: block; width: 100%; aspect-ratio: 16 / 9; background: #0b0918; }
+.card .info { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; }
+.card h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 24px; color: var(--cyan); }
+.card p { margin: 0; color: var(--dim); font-size: 18px; line-height: 1.45; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 15px; font-weight: 600; color: var(--lime); border: 1.5px solid rgba(182,255,59,.5); border-radius: 3px; padding: 2px 8px; }
+.play { margin-top: 4px; align-self: flex-start; font-family: var(--display); font-size: 18px; color: var(--void); background: var(--cyan); padding: 8px 18px; border-radius: 4px; box-shadow: 0 0 12px var(--cyan); }
+.card.soon { border-color: rgba(141,135,184,.4); box-shadow: none; pointer-events: none; }
+.card.soon .soonbox { aspect-ratio: 16 / 9; display: grid; place-items: center; font-family: var(--display); font-size: 22px; color: var(--dim); background: repeating-linear-gradient(45deg, #0b0918 0 14px, #100c20 14px 28px); }
+.card.soon h3 { color: var(--dim); }
+footer { color: var(--dim); font-size: 16px; }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>OP Game <span>Hub</span></h1>
+    <p class="tag">Free browser games. No download, no sign-up. Just pick one and play.</p>
+  </header>
+
+  <section aria-labelledby="games-h">
+    <h2 id="games-h">Games</h2>
+    <div class="games" style="margin-top:16px">
+      <a class="card" href="stickman-parkour/">
+        <canvas id="spPreview" width="640" height="360" aria-hidden="true"></canvas>
+        <div class="info">
+          <h3>Stickman Parkour</h3>
+          <p>Run and jump across neon rooftops. 50 levels, an endless mode, power-ups, and a shop full of skins.</p>
+          <div class="chips"><span class="chip">Platformer</span><span class="chip">50 levels</span><span class="chip">Endless</span></div>
+          <span class="play">Play</span>
+        </div>
+      </a>
+      <div class="card soon" aria-hidden="true">
+        <div class="soonbox">More games soon</div>
+        <div class="info"><h3>Coming soon</h3><p>The next game is in the works.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>© <span id="yr"></span> OP Game Hub</footer>
+</div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+// Small animated preview for the Stickman Parkour card
+(() => {
+  const cv = document.getElementById('spPreview'), g = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const plats = [[0, 290, 170], [230, 260, 110], [400, 230, 120], [580, 270, 160], [800, 240, 110], [970, 280, 170]];
+  function frame(ms) {
+    const t = ms / 1000, cam = reduce ? 0 : (t * 70) % 760;
+    const sky = g.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#120a2a'); sky.addColorStop(.7, '#2a0f3d'); sky.addColorStop(1, '#0b0918');
+    g.fillStyle = sky; g.fillRect(0, 0, W, H);
+    const sun = g.createLinearGradient(0, 70, 0, 230); sun.addColorStop(0, '#ffb02e'); sun.addColorStop(1, '#ff2bd6');
+    g.save(); g.shadowColor = '#ff2bd6'; g.shadowBlur = 30; g.fillStyle = sun; g.beginPath(); g.arc(W * .7, 150, 80, 0, 7); g.fill(); g.restore();
+    g.fillStyle = '#2a0f3d'; for (let i = 0; i < 5; i++) g.fillRect(W * .7 - 90, 160 + i * 14, 180, 2 + i);
+    g.save(); g.translate(-cam, 0);
+    for (let rep = 0; rep < 2; rep++) for (const [x, y, w] of plats) {
+      const X = x + rep * 1140;
+      g.fillStyle = 'rgba(17,14,34,.95)'; g.fillRect(X, y, w, H - y);
+      g.save(); g.shadowColor = '#ff2bd6'; g.shadowBlur = 12; g.strokeStyle = '#ff2bd6'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(X, H); g.lineTo(X, y); g.lineTo(X + w, y); g.lineTo(X + w, H); g.stroke(); g.restore();
+    }
+    g.restore();
+    // stickman
+    const px = 150, base = 290 - 50, hop = Math.abs(Math.sin(t * 3)) * (reduce ? 0 : 40), y = base - hop, s = Math.sin(t * 12);
+    g.save(); g.shadowColor = '#2ef6ff'; g.shadowBlur = 12; g.strokeStyle = '#2ef6ff'; g.lineWidth = 3.5; g.lineCap = 'round';
+    g.beginPath(); g.arc(px + 2, y + 6, 7, 0, 7); g.stroke();
+    g.beginPath(); g.moveTo(px + 2, y + 14); g.lineTo(px, y + 30);
+    g.moveTo(px + 1, y + 18); g.lineTo(px + 1 + s * 8, y + 28); g.moveTo(px + 1, y + 18); g.lineTo(px + 1 - s * 8, y + 28);
+    g.moveTo(px, y + 30); g.lineTo(px + s * 9, y + 48); g.moveTo(px, y + 30); g.lineTo(px - s * 9, y + 48); g.stroke(); g.restore();
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

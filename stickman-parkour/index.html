@@ -385,6 +385,37 @@ const ACCS = [
   { id:'wings',      name:'Wings',      price:260 },
 ];
 const BACK_ACCS = new Set(['cape', 'wings']); // drawn behind the body
+// Gear for the rest of the body: one item per slot, each equipped separately
+const BODY_GEAR = [
+  { id:'none',     name:'None',     price:0 },
+  { id:'belt',     name:'Belt',     price:40 },
+  { id:'sash',     name:'Sash',     price:60 },
+  { id:'medal',    name:'Medal',    price:70 },
+  { id:'backpack', name:'Backpack', price:90 },
+  { id:'armor',    name:'Armor',    price:150 },
+  { id:'jetpack',  name:'Jetpack',  price:200 },
+];
+const HAND_GEAR = [
+  { id:'none',       name:'None',          price:0 },
+  { id:'wristbands', name:'Wristbands',    price:30 },
+  { id:'gloves',     name:'Gloves',        price:50 },
+  { id:'boxing',     name:'Boxing Gloves', price:110 },
+  { id:'claws',      name:'Claws',         price:120 },
+  { id:'torch',      name:'Torch',         price:140 },
+  { id:'blade',      name:'Neon Blade',    price:220 },
+];
+const FOOT_GEAR = [
+  { id:'none',     name:'None',         price:0 },
+  { id:'sneakers', name:'Sneakers',     price:40 },
+  { id:'boots',    name:'Boots',        price:60 },
+  { id:'flippers', name:'Flippers',     price:80 },
+  { id:'skates',   name:'Roller Skates', price:100 },
+  { id:'springs',  name:'Spring Shoes', price:130 },
+  { id:'rocket',   name:'Rocket Boots', price:200 },
+];
+const BACK_BODY = new Set(['backpack', 'jetpack']);
+// shop sections inside the Accessories tab: [save key, item list, heading]
+const GEAR_SLOTS = [['acc', null, 'Head & back'], ['body', BODY_GEAR, 'Body'], ['hands', HAND_GEAR, 'Hands'], ['feet', FOOT_GEAR, 'Feet']];
 
 // Music tracks. Patterns are 16 steps: x = hit, o = bass an octave up, . = rest.
 const TRACKS = [
@@ -666,6 +697,10 @@ let save = { coins:0, owned:['skin:cyan','acc:none'], skin:'cyan', acc:'none', u
 try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); if (s) save = Object.assign(save, s); } catch (e) {}
 if (!DIFFS[save.diff]) save.diff = 'medium';
 save.pu = Object.assign({ jump:0, speed:0, fly:0, djump:0, shield:0, slow:0, coins2:0 }, save.pu);
+for (const k of ['body', 'hands', 'feet']) {
+  if (!save[k]) save[k] = 'none';
+  if (!save.owned.includes(`${k}:none`)) save.owned.push(`${k}:none`);
+}
 if (!save.music) save.music = 'synth';
 if (!save.fx) save.fx = 'neon';
 for (const k of ['music:synth', 'fx:neon']) if (!save.owned.includes(k)) save.owned.push(k);
@@ -1012,18 +1047,25 @@ function skinColor(id, t) {
 }
 // the colour used for glow, trail and death burst (differs for Shadow)
 function skinGlow(id, t) { const s = getSkin(id); return s.glow || skinColor(id, t); }
+// two-segment limb; returns the elbow/knee (j) and hand/foot (e) points so gear can attach to them
 function limb(g, x, y, a, len, bend) {
   const jx = x + Math.sin(a) * len * 0.55, jy = y + Math.cos(a) * len * 0.55;
   const a2 = a - bend, ex = jx + Math.sin(a2) * len * 0.55, ey = jy + Math.cos(a2) * len * 0.55;
   g.beginPath(); g.moveTo(x, y); g.lineTo(jx, jy); g.lineTo(ex, ey); g.stroke();
+  return { jx, jy, ex, ey };
 }
-function drawStickman(g, P, skinId, accId, t) {
+const gearNow = () => ({ body: save.body, hands: save.hands, feet: save.feet });
+function drawStickman(g, P, skinId, accId, t, gear) {
+  gear = gear || gearNow();
   const col = skinColor(skinId, t), ghost = skinId === 'ghost';
   const cx = P.x + PW/2, top = P.y, f = P.face;
   const squash = P.land > 0 ? P.land / 0.15 : 0;
   const hipY = top + 30 + squash * 5, neckY = top + 14 + squash * 7, headY = top + 6 + squash * 7;
   const lean = (P.vx / RUN) * 4, hx = cx + lean;
+  const B = { hx, cx, neckY, hipY, f };
+  if (BACK_BODY.has(gear.body)) drawBodyGear(g, gear.body, B, P, t);
   if (BACK_ACCS.has(accId)) drawAcc(g, accId, hx, headY, neckY, f, P, t, cx, hipY);
+  let arms, legs;
   g.save();
   if (getSkin(skinId).glitch && Math.sin(t * 19) > 0.8) g.translate(Math.sin(t * 97) * 3, 0);
   g.shadowColor = skinGlow(skinId, t); g.shadowBlur = 14; g.strokeStyle = col; g.lineWidth = 3.5; g.lineCap = 'round'; g.lineJoin = 'round';
@@ -1032,23 +1074,153 @@ function drawStickman(g, P, skinId, accId, t) {
   g.beginPath(); g.moveTo(hx, neckY); g.lineTo(cx, hipY); g.stroke();
   if (!P.ground) {
     const up = P.vy < 0;
-    limb(g, hx, neckY + 3, -2.5 * f + (up ? 0 : 1) * f, 16, 0.9 * f);
-    limb(g, hx, neckY + 3, 2.2 * f, 16, -0.9 * f);
-    limb(g, cx, hipY, up ? 0.9 * f : 0.4, 18, up ? -1.6 * f : -0.6 * f);
-    limb(g, cx, hipY, up ? -0.2 * f : -0.4, 18, up ? 0.3 * f : 0.4 * f);
+    arms = [limb(g, hx, neckY + 3, -2.5 * f + (up ? 0 : 1) * f, 16, 0.9 * f), limb(g, hx, neckY + 3, 2.2 * f, 16, -0.9 * f)];
+    legs = [limb(g, cx, hipY, up ? 0.9 * f : 0.4, 18, up ? -1.6 * f : -0.6 * f), limb(g, cx, hipY, up ? -0.2 * f : -0.4, 18, up ? 0.3 * f : 0.4 * f)];
   } else if (Math.abs(P.vx) > 20) {
     const s = Math.sin(P.phase), k = Math.abs(P.vx) / RUN;
-    limb(g, hx, neckY + 3, s * 1.1 * k, 16, -1.2 * f);
-    limb(g, hx, neckY + 3, -s * 1.1 * k, 16, -1.2 * f);
-    limb(g, cx, hipY, -s * 0.9 * k * f, 18, Math.max(0, s) * 1.4 * f * k);
-    limb(g, cx, hipY, s * 0.9 * k * f, 18, Math.max(0, -s) * 1.4 * f * k);
+    arms = [limb(g, hx, neckY + 3, s * 1.1 * k, 16, -1.2 * f), limb(g, hx, neckY + 3, -s * 1.1 * k, 16, -1.2 * f)];
+    legs = [limb(g, cx, hipY, -s * 0.9 * k * f, 18, Math.max(0, s) * 1.4 * f * k), limb(g, cx, hipY, s * 0.9 * k * f, 18, Math.max(0, -s) * 1.4 * f * k)];
   } else {
     const b = Math.sin(t * 3) * 0.05;
-    limb(g, cx, neckY + 3, 0.3 + b, 16, -0.2); limb(g, cx, neckY + 3, -0.3 - b, 16, 0.2);
-    limb(g, cx, hipY, 0.25, 18, 0); limb(g, cx, hipY, -0.25, 18, 0);
+    arms = [limb(g, cx, neckY + 3, 0.3 + b, 16, -0.2), limb(g, cx, neckY + 3, -0.3 - b, 16, 0.2)];
+    legs = [limb(g, cx, hipY, 0.25, 18, 0), limb(g, cx, hipY, -0.25, 18, 0)];
   }
   g.restore();
+  if (gear.body && gear.body !== 'none' && !BACK_BODY.has(gear.body)) drawBodyGear(g, gear.body, B, P, t);
+  if (gear.feet && gear.feet !== 'none') for (const l of legs) drawFootGear(g, gear.feet, l, f, P, t);
+  if (gear.hands && gear.hands !== 'none') arms.forEach((a, i) => drawHandGear(g, gear.hands, a, f, P, t, i));
   if (!BACK_ACCS.has(accId)) drawAcc(g, accId, hx, headY, neckY, f, P, t, cx, hipY);
+}
+function gearGlow(g, c, blur = 10) { g.shadowColor = c; g.shadowBlur = blur; g.strokeStyle = c; g.fillStyle = c; }
+function flame(g, x, y, dx, dy, len, t) {   // little flickering jet pointing along (dx, dy)
+  const L = len * (0.75 + Math.random() * 0.4), nx = -dy, ny = dx;
+  g.save(); g.shadowColor = '#ffb02e'; g.shadowBlur = 14;
+  g.fillStyle = '#ffb02e'; g.beginPath(); g.moveTo(x + nx * 3, y + ny * 3); g.lineTo(x + dx * L, y + dy * L); g.lineTo(x - nx * 3, y - ny * 3); g.fill();
+  g.fillStyle = '#fff3c4'; g.beginPath(); g.moveTo(x + nx * 1.5, y + ny * 1.5); g.lineTo(x + dx * L * 0.5, y + dy * L * 0.5); g.lineTo(x - nx * 1.5, y - ny * 1.5); g.fill();
+  g.restore();
+}
+function drawBodyGear(g, id, B, P, t) {
+  const { hx, cx, neckY, hipY, f } = B, midY = (neckY + hipY) / 2, midX = (hx + cx) / 2;
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round';
+  switch (id) {
+    case 'belt':
+      gearGlow(g, '#ffb02e'); g.lineWidth = 3;
+      g.beginPath(); g.moveTo(cx - 6, hipY - 2); g.lineTo(cx + 6, hipY - 2); g.stroke();
+      g.fillStyle = '#ffd84a'; g.fillRect(cx - 2 + f, hipY - 4.5, 4, 5);
+      break;
+    case 'sash':
+      gearGlow(g, '#ffd84a'); g.lineWidth = 3;
+      g.beginPath(); g.moveTo(hx - f * 5, neckY + 1); g.lineTo(cx + f * 6, hipY - 1); g.stroke();
+      break;
+    case 'medal':
+      gearGlow(g, '#ff3b5c'); g.lineWidth = 2;
+      g.beginPath(); g.moveTo(hx - 4, neckY); g.lineTo(midX + f, midY - 2); g.lineTo(hx + 4, neckY); g.stroke();
+      gearGlow(g, '#ffd84a', 12); g.beginPath(); g.arc(midX + f, midY + 1, 3.5, 0, Math.PI * 2); g.fill();
+      break;
+    case 'backpack':
+      gearGlow(g, '#9d6bff'); g.lineWidth = 2;
+      g.fillStyle = 'rgba(157,107,255,.85)'; g.fillRect(midX - f * 8 - 4.5, neckY + 2, 9, 14);
+      g.strokeRect(midX - f * 8 - 4.5, neckY + 2, 9, 14);
+      g.beginPath(); g.moveTo(midX - f * 4, neckY + 3); g.lineTo(midX + f * 2, midY + 2); g.stroke();
+      break;
+    case 'armor':
+      gearGlow(g, '#9fe8ff', 12);
+      g.globalAlpha = 0.9; g.beginPath();
+      g.moveTo(hx - 6, neckY + 2); g.lineTo(hx + 6, neckY + 2); g.lineTo(cx + 4.5, hipY - 3); g.lineTo(cx - 4.5, hipY - 3); g.closePath(); g.fill();
+      g.globalAlpha = 1; g.shadowBlur = 0; g.strokeStyle = '#ffffff'; g.lineWidth = 1.2;
+      g.beginPath(); g.moveTo(midX - 3, midY); g.lineTo(midX + 3, midY); g.stroke();
+      break;
+    case 'jetpack': {
+      const bx = midX - f * 8;
+      gearGlow(g, '#c9c3e6', 8); g.fillStyle = '#5a5378'; g.lineWidth = 1.5;
+      for (const o of [-2.5, 2.5]) { g.fillRect(bx + o - 2.5, neckY + 1, 5, 15); g.strokeRect(bx + o - 2.5, neckY + 1, 5, 15); }
+      if (!P.ground || Math.abs(P.vx) > 200) for (const o of [-2.5, 2.5]) flame(g, bx + o, neckY + 17, 0, 1, P.ground ? 7 : 14, t);
+      break;
+    }
+  }
+  g.restore();
+}
+function drawHandGear(g, id, a, f, P, t, i) {
+  const { jx, jy, ex, ey } = a;
+  const dx = ex - jx, dy = ey - jy, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d; // forearm direction
+  g.save(); g.lineCap = 'round';
+  switch (id) {
+    case 'wristbands':
+      gearGlow(g, '#ff2bd6'); g.lineWidth = 5;
+      g.beginPath(); g.moveTo(ex - ux * 4, ey - uy * 4); g.lineTo(ex - ux * 1.5, ey - uy * 1.5); g.stroke();
+      break;
+    case 'gloves':
+      gearGlow(g, '#f4f2ff', 8); g.beginPath(); g.arc(ex, ey, 3.2, 0, Math.PI * 2); g.fill();
+      break;
+    case 'boxing':
+      gearGlow(g, '#ff3b5c', 10); g.beginPath(); g.arc(ex + ux * 1.5, ey + uy * 1.5, 5, 0, Math.PI * 2); g.fill();
+      g.shadowBlur = 0; g.fillStyle = '#ffffff'; g.fillRect(ex - ux * 3 - 2, ey - uy * 3 - 1, 4, 2);
+      break;
+    case 'claws':
+      gearGlow(g, '#b6ff3b', 8); g.lineWidth = 1.5;
+      for (const k of [-0.45, 0, 0.45]) {
+        const c = Math.cos(k), s = Math.sin(k), rx = ux * c - uy * s, ry = ux * s + uy * c;
+        g.beginPath(); g.moveTo(ex, ey); g.lineTo(ex + rx * 7, ey + ry * 7); g.stroke();
+      }
+      break;
+    case 'torch':
+      if (i !== 0) break; // one torch, in the leading hand
+      g.strokeStyle = '#8a5a2b'; g.lineWidth = 2.5;
+      g.beginPath(); g.moveTo(ex - f * 1, ey + 3); g.lineTo(ex + f * 2, ey - 9); g.stroke();
+      flame(g, ex + f * 2, ey - 9, 0, -1, 9 + Math.sin(t * 20) * 2, t);
+      break;
+    case 'blade': {
+      if (i !== 0) break; // one blade, in the leading hand
+      const bx = ux * 0.35 + f * 0.65, by = uy * 0.35 - 0.75, n = Math.hypot(bx, by) || 1; // angled forward and up
+      gearGlow(g, '#ff2bd6', 16); g.lineWidth = 3;
+      g.beginPath(); g.moveTo(ex, ey); g.lineTo(ex + (bx / n) * 22, ey + (by / n) * 22); g.stroke();
+      g.shadowBlur = 0; g.strokeStyle = '#ffffff'; g.lineWidth = 1.2; g.stroke();
+      g.strokeStyle = '#c9c3e6'; g.lineWidth = 3; g.beginPath(); g.moveTo(ex - (by / n) * 3, ey + (bx / n) * 3); g.lineTo(ex + (by / n) * 3, ey - (bx / n) * 3); g.stroke();
+      break;
+    }
+  }
+  g.restore();
+}
+function drawFootGear(g, id, l, f, P, t) {
+  const { ex, ey } = l;
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round';
+  switch (id) {
+    case 'sneakers':
+      gearGlow(g, '#f4f2ff', 8); g.lineWidth = 3.5;
+      g.beginPath(); g.moveTo(ex - f * 1.5, ey); g.lineTo(ex + f * 5, ey); g.stroke();
+      g.shadowBlur = 0; g.strokeStyle = '#ff2bd6'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(ex, ey - 1); g.lineTo(ex + f * 3, ey - 1); g.stroke();
+      break;
+    case 'boots':
+      gearGlow(g, '#ffb02e', 8);
+      g.fillRect(Math.min(ex - f * 2, ex + f * 6), ey - 6, 8, 7.5);
+      break;
+    case 'flippers':
+      gearGlow(g, '#b6ff3b', 8);
+      g.beginPath(); g.moveTo(ex, ey - 2); g.lineTo(ex + f * 13, ey - 3.5); g.lineTo(ex + f * 13, ey + 2.5); g.lineTo(ex, ey + 1.5); g.closePath(); g.fill();
+      break;
+    case 'skates': {
+      gearGlow(g, '#2ef6ff', 8); g.lineWidth = 3;
+      g.beginPath(); g.moveTo(ex - f * 2, ey); g.lineTo(ex + f * 6, ey); g.stroke();
+      g.fillStyle = '#ff2bd6'; g.shadowColor = '#ff2bd6';
+      for (const o of [-1, 5]) { g.beginPath(); g.arc(ex + f * o, ey + 3.5, 2, 0, Math.PI * 2); g.fill(); }
+      break;
+    }
+    case 'springs': {
+      gearGlow(g, '#c9c3e6', 6); g.lineWidth = 1.5;
+      const squish = P.ground ? 0.6 : 1.2;
+      g.beginPath(); g.moveTo(ex, ey);
+      for (let k = 1; k <= 4; k++) g.lineTo(ex + (k % 2 ? 3 : -3), ey + k * 1.6 * squish);
+      g.stroke();
+      g.strokeStyle = '#b6ff3b'; g.lineWidth = 3; g.beginPath(); g.moveTo(ex - 3, ey + 7 * squish); g.lineTo(ex + 4, ey + 7 * squish); g.stroke();
+      break;
+    }
+    case 'rocket':
+      gearGlow(g, '#ff3b5c', 8);
+      g.fillRect(Math.min(ex - f * 2, ex + f * 6), ey - 4.5, 8, 6);
+      if (!P.ground || Math.abs(P.vx) > 150) flame(g, ex - f * 2, ey + 1, -f * 0.5, 0.85, P.ground ? 6 : 11, t);
+      break;
+  }
+  g.restore();
 }
 function drawAcc(g, id, hx, hy, ny, f, P, t, cx, hipY) {
   if (id === 'none') return;
@@ -1169,7 +1341,7 @@ function drawAcc(g, id, hx, hy, ny, f, P, t, cx, hipY) {
   g.restore();
 }
 // draw a running stickman centred in a small canvas
-function renderPreview(cv, skin, acc, t) {
+function renderPreview(cv, skin, acc, t, gear) {
   const g = cv.getContext('2d');
   const cw = cv.width, ch = cv.height;
   g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cw, ch);
@@ -1179,7 +1351,7 @@ function renderPreview(cv, skin, acc, t) {
   g.strokeStyle = 'rgba(255,43,214,.5)'; g.lineWidth = 1.5;
   g.beginPath(); g.moveTo(vw * 0.15, 76); g.lineTo(vw * 0.85, 76); g.stroke();
   const P = { x: vw / 2 - PW / 2 - 2, y: 76 - PH, vx: RUN * 0.8, vy: 0, ground: true, face: 1, phase: t * 12, land: 0 };
-  drawStickman(g, P, skin, acc, t);
+  drawStickman(g, P, skin, acc, t, gear);
 }
 
 // ---- World rendering ----
@@ -1528,7 +1700,8 @@ function nextLevelIndex() { return Math.min(save.unlocked - 1, LEVELS.length - 1
 function goHome() {
   state = 'home'; stage.classList.remove('playing'); keys.l = keys.r = keys.j = false;
   syncCoins();
-  $('homeEq').innerHTML = `<b>${nameOf(SKINS, save.skin)}</b> · ${save.acc === 'none' ? 'no accessory' : `<b>${nameOf(ACCS, save.acc)}</b>`}`;
+  const worn = GEAR_SLOTS.map(([k, list]) => save[k] !== 'none' ? nameOf(list || ACCS, save[k]) : null).filter(Boolean);
+  $('homeEq').innerHTML = `<b>${nameOf(SKINS, save.skin)}</b> · ${worn.length ? worn.map(n => `<b>${n}</b>`).join(', ') : 'no accessories'}`;
   const n = nextLevelIndex();
   $('playBtn').textContent = `Play · Level ${n + 1}`;
   if (mode === 'endless' || lvl !== n || !level) loadLevel(n);
@@ -1566,11 +1739,13 @@ function renderShop() {
   const grid = $('shopGrid'); grid.innerHTML = ''; previews = [];
   if (shopTab === 'snd') { renderSoundShop(grid); return; }
   if (shopTab === 'pu') { renderPUShop(grid); return; }
-  const list = shopTab === 'skin' ? SKINS : ACCS;
   const pd = Math.min(window.devicePixelRatio || 1, 2);
+  const sections = shopTab === 'skin' ? [['skin', SKINS, null]] : GEAR_SLOTS.map(([k, list, h]) => [k, list || ACCS, h]);
+  for (const [cat, list, heading] of sections) {
+  if (heading) grid.insertAdjacentHTML('beforeend', `<div class="ghead">${heading}</div>`);
   for (const it of list) {
-    const key = `${shopTab}:${it.id}`, owned = save.owned.includes(key);
-    const equipped = shopTab === 'skin' ? save.skin === it.id : save.acc === it.id;
+    const key = `${cat}:${it.id}`, owned = save.owned.includes(key);
+    const equipped = save[cat] === it.id;
     const b = document.createElement('button');
     b.className = 'item ' + (equipped ? 'equipped' : owned ? 'owned' : 'buy');
     if (!owned && save.coins < it.price) b.disabled = true;
@@ -1579,9 +1754,11 @@ function renderShop() {
     b.insertAdjacentHTML('beforeend', `<span class="nm">${it.name}</span><span class="st">${
       equipped ? 'Equipped' : owned ? 'Equip' : `<span class="coin"></span>${it.price}`}</span>`);
     b.setAttribute('aria-label', `${it.name}: ${equipped ? 'equipped' : owned ? 'owned, select to equip' : `costs ${it.price} coins`}`);
-    b.addEventListener('click', () => buyEquip(shopTab, it));
+    b.addEventListener('click', () => buyEquip(cat, it));
     grid.appendChild(b);
-    previews.push({ cv, skin: shopTab === 'skin' ? it.id : save.skin, acc: shopTab === 'acc' ? it.id : save.acc });
+    const gear = Object.assign(gearNow(), cat === 'body' || cat === 'hands' || cat === 'feet' ? { [cat]: it.id } : {});
+    previews.push({ cv, skin: cat === 'skin' ? it.id : save.skin, acc: cat === 'acc' ? it.id : save.acc, gear });
+  }
   }
 }
 function renderSoundShop(grid) {
@@ -1718,7 +1895,7 @@ function frame(now) {
   update(state === 'play' && active.slow > 0 ? dt * SLOW_MULT : dt); draw();
   if (state === 'play') updatePUBar();
   if (state === 'home') renderPreview(homePv, save.skin, save.acc, time);
-  if (state === 'shop') for (const p of previews) renderPreview(p.cv, p.skin, p.acc, time);
+  if (state === 'shop') for (const p of previews) renderPreview(p.cv, p.skin, p.acc, time, p.gear);
   requestAnimationFrame(frame);
 }
 

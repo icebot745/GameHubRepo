@@ -386,7 +386,7 @@ const DIFFS = {
 let RUN, ACC, AIR_ACC, FRICTION, JUMP;
 // Rebirths: each one adds +7.5% run speed and +7.5% jump height (stacking additively, up to +150% at 20)
 const REBIRTH_MAX = 20, REBIRTH_STEP = 0.075;
-const rebirthCost = n => 1000 + 500 * n;          // coins needed for rebirth number n+1
+const rebirthCost = n => 1000;                    // every rebirth costs 1,000 coins
 const rebirthMult = n => 1 + REBIRTH_STEP * n;
 // rb = rebirth multiplier. Jump height grows with the square of launch speed, so speed gets √rb to raise height by rb.
 function applyDiff(id, rb = 1) {

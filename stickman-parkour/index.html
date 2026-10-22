@@ -206,6 +206,28 @@ canvas#c { display: block; width: 100%; height: 100%; }
 .diff button[data-diff="medium"][aria-pressed="true"] { background: var(--cyan); }
 .diff button[data-diff="hard"][aria-pressed="true"] { background: var(--magenta); }
 .diffnote { font-size: 16px; color: var(--dim); margin-top: -4px; }
+.rbtag { font-size: 17px; font-weight: 600; color: var(--amber); text-shadow: 0 0 8px rgba(255,176,46,.5); }
+.btn.ghost.rb { color: var(--amber); border-color: var(--amber); box-shadow: 0 0 10px rgba(255,176,46,.3); }
+.btn.ghost.rb:hover { color: var(--void); background: var(--amber); }
+.rbtitle { color: var(--amber) !important; text-shadow: 0 0 10px var(--amber) !important; }
+.rbstars { display: grid; grid-template-columns: repeat(10, auto); justify-content: center; gap: 4px 6px; font-size: 22px; line-height: 1; }
+.rbstars span { color: rgba(141,135,184,.35); }
+.rbstars span.on { color: var(--amber); text-shadow: 0 0 8px var(--amber); }
+.rbgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: 100%; max-width: 560px; }
+.rbcol { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1.5px solid rgba(141,135,184,.5); border-radius: 6px; background: rgba(17,14,34,.85); }
+.rbcol.next { border-color: var(--lime); box-shadow: 0 0 12px rgba(182,255,59,.3); }
+.rbh { font-family: var(--display); font-size: 17px; color: var(--dim); letter-spacing: .04em; }
+.rbcol.next .rbh { color: var(--lime); }
+.rbrow { display: flex; justify-content: space-between; gap: 10px; font-size: 18px; }
+.rbrow b { font-variant-numeric: tabular-nums; }
+.rbcol.next .rbrow b { color: var(--lime); }
+.rbwarn { max-width: 560px; font-size: 17px; line-height: 1.5; color: var(--ink); padding: 12px 16px; border-left: 3px solid var(--magenta); background: rgba(255,43,214,.08); }
+.rbwarn b { color: var(--magenta); }
+.rbwarn b + br + b, .rbwarn br + b { color: var(--lime); }
+.btn.rbgo { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 16px rgba(255,176,46,.7); }
+.btn.rbgo.confirm { background: var(--magenta); border-color: var(--magenta); box-shadow: 0 0 16px var(--magenta); }
+.btn.rbgo:disabled { background: transparent; color: var(--dim); border-color: rgba(141,135,184,.5); box-shadow: none; cursor: not-allowed; }
+@media (max-width: 520px) { .rbgrid { grid-template-columns: 1fr; } }
 .legend.blocks span { display: inline-flex; align-items: center; gap: 8px; }
 .sw { width: 22px; height: 10px; border: 2px solid var(--c); border-radius: 2px; box-shadow: 0 0 8px var(--c); display: inline-block; }
 .sw.dash { border-style: dashed; }
@@ -243,6 +265,7 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
       <div class="menu">
         <div class="tag">Rooftop runner</div>
         <span class="coins"><span class="coin"></span><span id="homeCoins">0</span></span>
+        <div class="rbtag" id="rbTag" hidden></div>
         <div class="stack">
           <div class="diff" role="group" aria-label="Difficulty">
             <button data-diff="easy" aria-pressed="false">Easy</button>
@@ -254,8 +277,9 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
           <button class="btn ghost" id="endlessBtn">Endless Mode</button>
           <button class="btn ghost" id="levelsBtn">Levels</button>
           <button class="btn ghost" id="shopBtn">Shop</button>
+          <button class="btn ghost rb" id="rebirthBtn">Rebirth</button>
         </div>
-        <div class="note">Earn coins by clearing levels, reaching checkpoints and going far in Endless Mode. Spend them on skins and accessories.</div>
+        <div class="note">Earn coins by clearing levels, reaching checkpoints and going far in Endless Mode. Spend them on gear, or Rebirth for permanent speed and jump boosts.</div>
       </div>
     </div>
   </section>
@@ -283,6 +307,35 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
     </div>
     <div class="toast" id="toast" aria-live="polite"></div>
     <div class="grid" id="shopGrid"></div>
+  </section>
+
+  <section class="screen" id="scrRebirth" hidden>
+    <div class="topbar">
+      <button class="btn ghost small" data-home>← Home</button>
+      <span class="coins"><span class="coin"></span><span class="coinNum">0</span></span>
+    </div>
+    <h2 class="rbtitle">Rebirth</h2>
+    <div class="rbstars" id="rbStars" aria-hidden="true"></div>
+    <div class="rbgrid">
+      <div class="rbcol">
+        <div class="rbh">Now</div>
+        <div class="rbrow"><span>Rebirths</span><b id="rbNow">0 / 20</b></div>
+        <div class="rbrow"><span>Speed</span><b id="rbSpdNow">+0%</b></div>
+        <div class="rbrow"><span>Jump height</span><b id="rbJmpNow">+0%</b></div>
+      </div>
+      <div class="rbcol next">
+        <div class="rbh">After rebirth</div>
+        <div class="rbrow"><span>Rebirths</span><b id="rbNext">1 / 20</b></div>
+        <div class="rbrow"><span>Speed</span><b id="rbSpdNext">+7.5%</b></div>
+        <div class="rbrow"><span>Jump height</span><b id="rbJmpNext">+7.5%</b></div>
+      </div>
+    </div>
+    <div class="rbwarn">
+      <b>You lose:</b> all coins, all power-ups, and level progress (back to Level 1, checkpoint coins can be earned again).<br>
+      <b>You keep:</b> skins, accessories, sounds, difficulty and your best Endless distance.
+    </div>
+    <button class="btn rbgo" id="rbGo">Rebirth</button>
+    <div class="toast" id="rbMsg" aria-live="polite"></div>
   </section>
 
   <section class="screen" id="scrResult" hidden>
@@ -331,9 +384,14 @@ const DIFFS = {
   hard:   { name:'Hard',   run:420, jump:720, note:'Faster run, same jump',   color:'#ff2bd6' },
 };
 let RUN, ACC, AIR_ACC, FRICTION, JUMP;
-function applyDiff(id) {
-  const d = DIFFS[id] || DIFFS.medium, k = d.run / 330;
-  RUN = d.run; JUMP = d.jump; ACC = 2800 * k; AIR_ACC = 1900 * k; FRICTION = 2600 * k;
+// Rebirths: each one adds +7.5% run speed and +7.5% jump height (stacking additively, up to +150% at 20)
+const REBIRTH_MAX = 20, REBIRTH_STEP = 0.075;
+const rebirthCost = n => 1000 + 500 * n;          // coins needed for rebirth number n+1
+const rebirthMult = n => 1 + REBIRTH_STEP * n;
+// rb = rebirth multiplier. Jump height grows with the square of launch speed, so speed gets √rb to raise height by rb.
+function applyDiff(id, rb = 1) {
+  const d = DIFFS[id] || DIFFS.medium, k = (d.run / 330) * rb;
+  RUN = d.run * rb; JUMP = d.jump * Math.sqrt(rb); ACC = 2800 * k; AIR_ACC = 1900 * k; FRICTION = 2600 * k;
 }
 applyDiff('medium');
 const PW = 20, PH = 50;
@@ -704,7 +762,9 @@ for (const k of ['body', 'hands', 'feet']) {
 if (!save.music) save.music = 'synth';
 if (!save.fx) save.fx = 'neon';
 for (const k of ['music:synth', 'fx:neon']) if (!save.owned.includes(k)) save.owned.push(k);
-applyDiff(save.diff);
+save.rebirths = Math.max(0, Math.min(REBIRTH_MAX, save.rebirths | 0));
+const applyStats = () => applyDiff(save.diff, rebirthMult(save.rebirths));
+applyStats();
 // best times and distances are kept per difficulty (medium uses the original keys)
 const bestKey = i => save.diff === 'medium' ? i : `${i}-${save.diff}`;
 const endlessKey = () => save.diff === 'medium' ? 'bestEndless' : `bestEndless_${save.diff}`;
@@ -1530,7 +1590,7 @@ function hud() {
   ctx.fillText(mode === 'endless' ? '♥'.repeat(Math.max(0, lives)) + '♡'.repeat(LIVES - Math.max(0, lives)) : `✖ ${deaths}`, W - 18, 42);
   const dd = DIFFS[save.diff];
   ctx.font = '400 16px Audiowide, sans-serif'; glow(dd.color, 8); ctx.fillStyle = dd.color;
-  ctx.fillText(dd.name.toUpperCase(), W - 18, 68);
+  ctx.fillText(dd.name.toUpperCase() + (save.rebirths ? ` · ★${save.rebirths}` : ''), W - 18, 68);
   ctx.font = '600 20px "Chakra Petch", sans-serif';
   if (level.finish) {
     const prog = Math.min(1, Math.max(0, player.x / level.finish[0]));
@@ -1688,7 +1748,7 @@ window.addEventListener('pointerdown', initAudio);
 
 // ---- Screens ----
 const $ = id => document.getElementById(id);
-const screens = ['scrHome', 'scrLevels', 'scrShop', 'scrResult'].map($);
+const screens = ['scrHome', 'scrLevels', 'scrShop', 'scrResult', 'scrRebirth'].map($);
 function show(id) { for (const s of screens) s.hidden = s.id !== id; }
 function syncCoins() {
   $('homeCoins').textContent = save.coins;
@@ -1702,11 +1762,54 @@ function goHome() {
   syncCoins();
   const worn = GEAR_SLOTS.map(([k, list]) => save[k] !== 'none' ? nameOf(list || ACCS, save[k]) : null).filter(Boolean);
   $('homeEq').innerHTML = `<b>${nameOf(SKINS, save.skin)}</b> · ${worn.length ? worn.map(n => `<b>${n}</b>`).join(', ') : 'no accessories'}`;
+  const rb = save.rebirths;
+  $('rbTag').hidden = rb === 0;
+  $('rbTag').textContent = `★ Rebirth ${rb} · +${pct(rb)} speed & jump`;
+  $('rebirthBtn').textContent = rb >= REBIRTH_MAX ? 'Rebirth · Maxed' : `Rebirth ${rb + 1}`;
   const n = nextLevelIndex();
   $('playBtn').textContent = `Play · Level ${n + 1}`;
   if (mode === 'endless' || lvl !== n || !level) loadLevel(n);
   show('scrHome'); $('playBtn').focus({ preventScroll: true });
 }
+// ---- Rebirth ----
+const pct = n => `${+(REBIRTH_STEP * n * 100).toFixed(1)}%`;
+let rbArmed = 0;
+function openRebirth() {
+  sfx('click'); state = 'rebirth'; rbArmed = 0; $('rbMsg').textContent = ''; renderRebirth(); show('scrRebirth');
+}
+function renderRebirth() {
+  syncCoins();
+  const n = save.rebirths, maxed = n >= REBIRTH_MAX, cost = rebirthCost(n), m = Math.min(n + 1, REBIRTH_MAX);
+  $('rbStars').innerHTML = Array.from({ length: REBIRTH_MAX }, (_, i) => `<span class="${i < n ? 'on' : ''}">★</span>`).join('');
+  $('rbNow').textContent = `${n} / ${REBIRTH_MAX}`; $('rbSpdNow').textContent = `+${pct(n)}`; $('rbJmpNow').textContent = `+${pct(n)}`;
+  $('rbNext').textContent = maxed ? 'Maxed' : `${m} / ${REBIRTH_MAX}`;
+  $('rbSpdNext').textContent = maxed ? '—' : `+${pct(m)}`; $('rbJmpNext').textContent = maxed ? '—' : `+${pct(m)}`;
+  const go = $('rbGo');
+  go.classList.toggle('confirm', rbArmed > 0);
+  if (maxed) { go.disabled = true; go.textContent = 'All 20 rebirths done'; }
+  else if (save.coins < cost) { go.disabled = true; go.textContent = `Need ${cost.toLocaleString()} coins (${(cost - save.coins).toLocaleString()} more)`; }
+  else { go.disabled = false; go.textContent = rbArmed ? 'Tap again to confirm' : `Rebirth for ${cost.toLocaleString()} coins`; }
+}
+function doRebirth() {
+  const n = save.rebirths, cost = rebirthCost(n);
+  if (n >= REBIRTH_MAX || save.coins < cost) { sfx('nope'); return; }
+  if (!rbArmed) {                       // two-step confirm, since a rebirth can't be undone
+    rbArmed = setTimeout(() => { rbArmed = 0; if (state === 'rebirth') renderRebirth(); }, 4000);
+    sfx('equip'); renderRebirth(); return;
+  }
+  clearTimeout(rbArmed); rbArmed = 0;
+  save.rebirths = n + 1;
+  save.coins = 0;
+  for (const k in save.pu) save.pu[k] = 0;
+  save.unlocked = 1; save.best = {}; save.cpPaid = {};
+  persist(); applyStats(); loadLevel(0);
+  sfx('win'); setTimeout(() => sfx('power'), 450);
+  renderRebirth();
+  $('rbMsg').textContent = `Rebirth ${save.rebirths} complete! You're now ${pct(save.rebirths)} faster with ${pct(save.rebirths)} higher jumps.`;
+}
+$('rebirthBtn').addEventListener('click', openRebirth);
+$('rbGo').addEventListener('click', doRebirth);
+
 function startLevel(i) {
   sfx('click'); loadLevel(i); show(null); state = 'play'; stage.classList.add('playing');
 }
@@ -1873,7 +1976,7 @@ function renderDiff() {
   $('diffNote').textContent = DIFFS[save.diff].note;
 }
 document.querySelectorAll('.diff button').forEach(b => b.addEventListener('click', () => {
-  save.diff = b.dataset.diff; applyDiff(save.diff); persist(); sfx('equip'); renderDiff();
+  save.diff = b.dataset.diff; applyStats(); persist(); sfx('equip'); renderDiff();
 }));
 renderDiff();
 $('shopBtn').addEventListener('click', openShop);

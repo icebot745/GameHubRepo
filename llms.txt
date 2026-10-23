@@ -1,0 +1,14 @@
+# OP Game Hub
+
+> OP Game Hub (www.opgamehub.com) is a website of free online games for kids and teens. "OP" means overpowered. Every game runs in a web browser on phones, tablets, Chromebooks and computers, with no download, no sign-up, no chat and no personal data collected. Progress saves locally on the player's device.
+
+## Games
+
+- [Stickman Parkour](https://www.opgamehub.com/stickman-parkour/): A free neon stickman platformer. 50 levels, an endless mode (3 coins per 10 m), 7 block types (solid, moving, bounce pad, crumble, ice, conveyor, blink), 7 power-ups (Jump Boost, Speed, Flight, Double Jump, Shield, Slow-Mo, Double Coins), 3 difficulties (Easy, Medium, Hard), and 20 rebirths that each add 7.5% speed and jump height for 1,000 coins. The shop sells 14 skins, 32 accessories, 8 music tracks and 4 sound packs using in-game coins only. Controls: arrow keys or A/D to run, Space/W/Up to jump, keys 1 to 7 for power-ups; touch buttons on mobile. Suitable for ages 8 and up.
+
+## Facts
+
+- Price: free. No real-money purchases.
+- Platforms: any modern web browser (Chrome, Safari, Edge, Firefox), desktop and mobile.
+- Accounts: none. Saves are stored in the browser on each device.
+- Safety: single player, no chat, no user-generated content, no sign-up.

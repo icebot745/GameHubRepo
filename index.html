@@ -30,6 +30,7 @@
 <!-- /SEO -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;600&display=swap">
+<link rel="stylesheet" href="/assets/ophub.css">
 <style>
 /* Layout: arcade marquee title, then a grid of game cabinets. Single dark neon look, shared with the games. */
 :root {
@@ -50,7 +51,7 @@ body {
   background-image: linear-gradient(rgba(138,91,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(138,91,255,.12) 1px, transparent 1px);
   background-size: 48px 48px;
 }
-.wrap { max-width: 1100px; margin: 0 auto; padding: 48px max(16px, env(safe-area-inset-left, 0px)) 64px; display: flex; flex-direction: column; gap: 36px; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-left, 0px)) 64px; display: flex; flex-direction: column; gap: 36px; }
 header { display: flex; flex-direction: column; gap: 10px; }
 h1 {
   margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(36px, 7vw, 64px); letter-spacing: .03em; line-height: 1.05;
@@ -80,15 +81,17 @@ h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 22px; 
 .about p { margin: 0; color: #c9c4ea; line-height: 1.6; }
 .about b { color: var(--ink); }
 .about a { color: var(--cyan); font-weight: 600; }
-footer { color: var(--dim); font-size: 16px; }
+footer { color: var(--dim); font-size: 16px; display: flex; flex-wrap: wrap; gap: 16px; }
+footer a { color: var(--dim); }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <div class="oph-topbar oph-right"><div id="ophub-account" class="oph-account"></div></div>
     <h1>OP Game <span>Hub</span></h1>
-    <p class="tag">Overpowered games, free in your browser. No downloads, no sign-up. Tap a game and play.</p>
+    <p class="tag">Overpowered games, free in your browser. No downloads, no sign-up needed. Tap a game and play.</p>
   </header>
 
   <section aria-labelledby="games-h">
@@ -112,14 +115,15 @@ footer { color: var(--dim); font-size: 16px; }
 
   <section class="about" aria-labelledby="about-h">
     <h2 id="about-h">About OP Game Hub</h2>
-    <p>OP Game Hub is a home for <b>free online games</b> made for kids and teens. Every game runs instantly in your web browser on a phone, tablet, Chromebook or computer. There is nothing to download, no account to make and no chat with strangers. Your progress saves on your own device.</p>
+    <p>OP Game Hub is a home for <b>free online games</b> made for kids and teens. Every game runs instantly in your web browser on a phone, tablet, Chromebook or computer. There is nothing to download, no account needed and no chat with strangers. Your progress saves on your own device. If you like, sign in with Google to get a display name and your own profile page.</p>
   </section>
 
-  <footer>© <span id="yr"></span> OP Game Hub</footer>
+  <footer><span>© <span id="yr"></span> OP Game Hub</span><a href="/privacy/">Privacy</a></footer>
 </div>
 
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 </script>
+<script src="/assets/ophub.js"></script>
 </body>
 </html>

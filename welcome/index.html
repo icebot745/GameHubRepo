@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pick Your Display Name | OP Game Hub</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07060f">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;600&display=swap">
+<link rel="stylesheet" href="/assets/ophub.css">
+</head>
+<body class="oph-page">
+<div class="oph-wrap">
+  <div class="oph-topbar"><a class="oph-brand" href="/">OP Game <span>Hub</span></a></div>
+
+  <p id="loading" class="oph-muted">Loading…</p>
+
+  <section id="off" class="oph-panel oph-quiet" hidden>
+    <h1>Accounts are coming soon</h1>
+    <p class="oph-soft">Sign-in isn't switched on yet. You can still play every game without an account.</p>
+    <div class="oph-row"><a class="oph-btn" href="/">Back to the games</a></div>
+  </section>
+
+  <section id="signed-out" class="oph-panel" hidden>
+    <h1>Sign in first</h1>
+    <p class="oph-soft">Sign in with your Google account, then pick the name other players will see.</p>
+    <div class="oph-row"><button class="oph-btn" type="button" id="signin-btn">Sign in with Google</button></div>
+  </section>
+
+  <form id="pick" class="oph-panel" hidden novalidate>
+    <h1 id="pick-title">Pick your display name</h1>
+    <p class="oph-soft">This is the name everyone sees on your profile, and later on games you make. Something like <b>icebot566</b>.</p>
+
+    <label for="name" class="oph-muted">Display name</label>
+    <div class="oph-field">
+      <span class="oph-at" aria-hidden="true">@</span>
+      <input class="oph-input" id="name" name="username" autocomplete="off" autocapitalize="off" spellcheck="false"
+             maxlength="20" inputmode="text" aria-describedby="status rules" placeholder="icebot566">
+    </div>
+    <p id="status" class="oph-status" aria-live="polite"></p>
+    <div class="oph-row"><button class="oph-btn oph-ghost" type="button" id="dice">Random name</button></div>
+
+    <ul id="rules" class="oph-list">
+      <li>3 to 20 characters: letters, numbers and _</li>
+      <li>Starts with a letter</li>
+      <li>You can fix it once right away, then change it every 30 days</li>
+    </ul>
+    <p class="oph-tip"><b>Stay safe:</b> don't use your real name, your school, your age or where you live.</p>
+
+    <label class="oph-check" id="consent-row">
+      <input type="checkbox" id="consent">
+      <span>I'm 18 or older, or my parent or guardian says it's OK for me to make an account.</span>
+    </label>
+
+    <div class="oph-row">
+      <button class="oph-btn" type="submit" id="save" disabled>Save name</button>
+      <a class="oph-btn oph-ghost" id="cancel" href="/">Cancel</a>
+    </div>
+    <p class="oph-muted">We keep only your display name and the month you joined. <a href="/privacy/">What we keep</a></p>
+  </form>
+</div>
+
+<script src="/assets/ophub.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const q = new URLSearchParams(location.search);
+  const ret = q.get('return');
+  const back = ret && /^\/(?![\/\\])/.test(ret) ? ret : null;
+
+  const ADJ = ['neon', 'pixel', 'turbo', 'hyper', 'ice', 'blaze', 'shadow', 'laser', 'cosmic', 'rocket', 'storm', 'mega', 'ultra', 'swift', 'frost', 'volt', 'nova', 'glitch', 'astro', 'retro'];
+  const NOUN = ['fox', 'bot', 'wolf', 'tiger', 'hawk', 'dragon', 'runner', 'rider', 'comet', 'byte', 'panda', 'shark', 'falcon', 'gecko', 'viper', 'raptor', 'phantom', 'golem', 'owl', 'ninja'];
+  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  const randomName = () => pick(ADJ) + pick(NOUN) + (100 + Math.floor(Math.random() * 900));
+
+  let me = null, firstPick = true, timer = 0, lastChecked = '', lastOk = false;
+
+  function quickRule(v) {
+    if (!v) return 'Type a name first.';
+    if (v.length < 3) return 'Too short. Use at least 3 characters.';
+    if (!/^[A-Za-z]/.test(v)) return 'Start with a letter.';
+    if (!/^[A-Za-z0-9_]+$/.test(v)) return 'Use letters, numbers and _ only.';
+    return '';
+  }
+  function setStatus(text, good) {
+    const s = $('status');
+    s.textContent = text;
+    s.className = 'oph-status' + (text ? (good ? ' oph-good' : ' oph-bad') : '');
+  }
+  function refreshSave() {
+    const sameAsNow = me && me.user.username && $('name').value === me.user.username;
+    const consentOk = !firstPick || $('consent').checked;
+    const locked = me && me.user.canRenameAt && !firstPick && !caseOnly();
+    $('save').disabled = !(lastOk && lastChecked === $('name').value && consentOk && !sameAsNow && !locked);
+  }
+  function cooldownText() {
+    return 'You can change your name again on ' + new Date(me.user.canRenameAt).toLocaleDateString() + '. Capital letters can change any time.';
+  }
+  function caseOnly() {
+    const cur = me && me.user.username;
+    return Boolean(cur) && cur.toLowerCase() === $('name').value.toLowerCase();
+  }
+
+  async function check() {
+    const v = $('name').value;
+    const rule = quickRule(v);
+    lastChecked = v; lastOk = false;
+    if (rule) { setStatus(rule, false); refreshSave(); return; }
+    if (me.user.username && v === me.user.username) { setStatus("That's your name now.", true); refreshSave(); return; }
+    if (me.user.canRenameAt && !firstPick && !caseOnly()) { setStatus(cooldownText(), false); refreshSave(); return; }
+    try {
+      const r = await fetch('/api/username?check=' + encodeURIComponent(v)).then((x) => x.json());
+      if ($('name').value !== v) return;
+      lastOk = Boolean(r.ok);
+      setStatus(r.ok ? '@' + v + ' is free!' : r.reason, r.ok);
+    } catch { setStatus("Couldn't check that name. Try again.", false); }
+    refreshSave();
+  }
+
+  $('name').addEventListener('input', () => { lastOk = false; refreshSave(); clearTimeout(timer); timer = setTimeout(check, 300); });
+  $('consent').addEventListener('change', refreshSave);
+  $('dice').addEventListener('click', () => { $('name').value = randomName(); check(); });
+  $('signin-btn').addEventListener('click', () => OPHub.signIn(location.pathname + location.search));
+
+  $('pick').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if ($('save').disabled) return;
+    $('save').disabled = true;
+    const v = $('name').value;
+    try {
+      const res = await fetch('/api/username', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: v }),
+      });
+      const r = await res.json();
+      if (!r.ok) {
+        const when = r.canRenameAt ? ' You can change it again on ' + new Date(r.canRenameAt).toLocaleDateString() + '.' : '';
+        setStatus(r.reason + when, false);
+        return;
+      }
+      location.href = back && back !== '/' ? back : '/u/' + encodeURIComponent(r.user.username);
+    } catch {
+      setStatus("Couldn't save. Check your connection and try again.", false);
+      $('save').disabled = false;
+    }
+  });
+
+  OPHub.ready.then((data) => {
+    me = data;
+    $('loading').hidden = true;
+    if (!me.available) { $('off').hidden = false; return; }
+    if (!me.signedIn) { $('signed-out').hidden = false; return; }
+    $('pick').hidden = false;
+    if (back) $('cancel').href = back;
+    firstPick = !me.user.username;
+    if (firstPick) {
+      $('cancel').hidden = true;
+    } else {
+      $('pick-title').textContent = 'Change your display name';
+      $('consent-row').hidden = true;
+      $('name').value = me.user.username;
+      if (me.user.canRenameAt) setStatus(cooldownText(), false);
+      lastChecked = me.user.username;
+    }
+    refreshSave();
+    $('name').focus();
+  });
+})();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 ## Games
 
-- [Stickman Parkour](https://www.opgamehub.com/stickman-parkour/): A free neon stickman platformer. 50 levels, an endless mode (3 coins per 10 m), 7 block types (solid, moving, bounce pad, crumble, ice, conveyor, blink), 7 power-ups (Jump Boost, Speed, Flight, Double Jump, Shield, Slow-Mo, Double Coins), 3 difficulties (Easy, Medium, Hard), and 20 rebirths that each add 7.5% speed and jump height for 1,000 coins. The shop sells 14 skins, 32 accessories, 8 music tracks and 4 sound packs using in-game coins only. Controls: arrow keys or A/D to run, Space/W/Up to jump, keys 1 to 7 for power-ups; touch buttons on mobile. Suitable for ages 8 and up.
+- [Stickman Parkour](https://www.opgamehub.com/stickman-parkour/): A free neon stickman platformer. 50 levels, an endless mode (3 coins per 10 m), 7 block types (solid, moving, bounce pad, crumble, ice, conveyor, blink), 7 power-ups (Jump Boost, Speed, Flight, Double Jump, Shield, Slow-Mo, Double Coins), 3 difficulties (Easy, Medium, Hard), and 20 rebirths that each add 7.5% speed, jump height and coin income for 1,000 coins. The shop sells 14 skins, 32 accessories, 8 music tracks and 4 sound packs using in-game coins only. Controls: arrow keys or A/D to run, Space/W/Up to jump, keys 1 to 7 for power-ups; touch buttons on mobile. Suitable for ages 8 and up.
 
 ## Facts
 

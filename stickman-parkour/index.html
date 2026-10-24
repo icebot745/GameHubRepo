@@ -25,7 +25,7 @@
 <meta name="twitter:image" content="https://www.opgamehub.com/stickman-parkour/og-image.jpg">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "VideoGame", "name": "Stickman Parkour", "url": "https://www.opgamehub.com/stickman-parkour/", "description": "Play Stickman Parkour free: a neon platformer with 50 levels, endless mode, power-ups and skins. No download, no sign-up. Works on phone and PC.", "image": "https://www.opgamehub.com/stickman-parkour/og-image.jpg", "inLanguage": "en", "genre": ["Platformer", "Parkour", "Arcade", "Endless runner"], "gamePlatform": ["Web browser", "PC", "Mobile"], "applicationCategory": "Game", "operatingSystem": "Any (runs in a web browser)", "playMode": "SinglePlayer", "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock"}, "audience": {"@type": "PeopleAudience", "suggestedMinAge": 8}, "publisher": {"@type": "Organization", "name": "OP Game Hub", "url": "https://www.opgamehub.com/"}, "isPartOf": {"@type": "WebSite", "name": "OP Game Hub", "url": "https://www.opgamehub.com/"}}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "OP Game Hub", "item": "https://www.opgamehub.com/"}, {"@type": "ListItem", "position": 2, "name": "Stickman Parkour", "item": "https://www.opgamehub.com/stickman-parkour/"}]}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Stickman Parkour free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Stickman Parkour is 100% free to play in your web browser. There is nothing to buy with real money. Coins are earned only by playing."}}, {"@type": "Question", "name": "Do I need to download anything or sign up?", "acceptedAnswer": {"@type": "Answer", "text": "No. The game runs right in your browser on a phone, tablet or computer. There is no download, no app store and no account."}}, {"@type": "Question", "name": "Does Stickman Parkour save my progress?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your coins, unlocked levels, skins and rebirths save automatically in your browser on that device. Clearing your browser data, or switching to another device or browser, starts a fresh save."}}, {"@type": "Question", "name": "Is Stickman Parkour safe for kids?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no chat, no sign-up and no personal information collected. It is a single-player game with cartoon stickman characters and no violence."}}, {"@type": "Question", "name": "How do you play Stickman Parkour on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "On a phone or tablet, on-screen buttons appear: left and right arrows to run, a big jump button, and power-up buttons at the top of the screen."}}, {"@type": "Question", "name": "What are rebirths in Stickman Parkour?", "acceptedAnswer": {"@type": "Answer", "text": "A rebirth costs 1,000 coins and resets your coins, power-ups and level progress, but makes your stickman permanently 7.5% faster with 7.5% higher jumps. You can rebirth up to 20 times."}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Stickman Parkour free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Stickman Parkour is 100% free to play in your web browser. There is nothing to buy with real money. Coins are earned only by playing."}}, {"@type": "Question", "name": "Do I need to download anything or sign up?", "acceptedAnswer": {"@type": "Answer", "text": "No. The game runs right in your browser on a phone, tablet or computer. There is no download, no app store and no account."}}, {"@type": "Question", "name": "Does Stickman Parkour save my progress?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Your coins, unlocked levels, skins and rebirths save automatically in your browser on that device. Clearing your browser data, or switching to another device or browser, starts a fresh save."}}, {"@type": "Question", "name": "Is Stickman Parkour safe for kids?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. There is no chat, no sign-up and no personal information collected. It is a single-player game with cartoon stickman characters and no violence."}}, {"@type": "Question", "name": "How do you play Stickman Parkour on a phone?", "acceptedAnswer": {"@type": "Answer", "text": "On a phone or tablet, on-screen buttons appear: left and right arrows to run, a big jump button, and power-up buttons at the top of the screen."}}, {"@type": "Question", "name": "What are rebirths in Stickman Parkour?", "acceptedAnswer": {"@type": "Answer", "text": "A rebirth costs 1,000 coins and resets your coins, power-ups and level progress, but permanently gives your stickman 7.5% more speed, 7.5% higher jumps and 7.5% more coins from levels and Endless Mode. You can rebirth up to 20 times."}}]}</script>
 <!-- /SEO -->
 <style>
 /* Base reset (matches the environment the game was built in) */
@@ -321,7 +321,7 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
           <button class="btn ghost" id="shopBtn">Shop</button>
           <button class="btn ghost rb" id="rebirthBtn">Rebirth</button>
         </div>
-        <div class="note">Earn coins by clearing levels, reaching checkpoints and going far in Endless Mode. Spend them on gear, or Rebirth for permanent speed and jump boosts.</div>
+        <div class="note">Earn coins by clearing levels, reaching checkpoints and going far in Endless Mode. Spend them on gear, or Rebirth for permanent speed, jump and coin boosts.</div>
       </div>
     </div>
   </section>
@@ -364,12 +364,14 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
         <div class="rbrow"><span>Rebirths</span><b id="rbNow">0 / 20</b></div>
         <div class="rbrow"><span>Speed</span><b id="rbSpdNow">+0%</b></div>
         <div class="rbrow"><span>Jump height</span><b id="rbJmpNow">+0%</b></div>
+        <div class="rbrow"><span>Coin income</span><b id="rbIncNow">+0%</b></div>
       </div>
       <div class="rbcol next">
         <div class="rbh">After rebirth</div>
         <div class="rbrow"><span>Rebirths</span><b id="rbNext">1 / 20</b></div>
         <div class="rbrow"><span>Speed</span><b id="rbSpdNext">+7.5%</b></div>
         <div class="rbrow"><span>Jump height</span><b id="rbJmpNext">+7.5%</b></div>
+        <div class="rbrow"><span>Coin income</span><b id="rbIncNext">+7.5%</b></div>
       </div>
     </div>
     <div class="rbwarn">
@@ -436,7 +438,7 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
         <li><b>50 levels</b> plus <b>Endless Mode</b> (3 coins every 10 m)</li>
         <li><b>7 block types:</b> solid, moving, bounce pads, crumble, ice, conveyors and blink blocks</li>
         <li><b>7 power-ups:</b> Jump Boost, Speed, Flight, Double Jump, Shield, Slow-Mo and Double Coins</li>
-        <li><b>3 difficulties</b> and <b>20 rebirths</b> for permanent speed and jump boosts</li>
+        <li><b>3 difficulties</b> and <b>20 rebirths</b> for permanent speed, jump and coin boosts</li>
         <li><b>Shop:</b> 14 skins, 32 accessories for head, body, hands and feet, 8 music tracks and 4 sound packs</li>
       </ul>
     </section>
@@ -448,7 +450,7 @@ kbd { font-family: var(--body); font-weight: 600; color: var(--ink); border: 1px
       <details><summary>Does Stickman Parkour save my progress?</summary><p>Yes. Your coins, unlocked levels, skins and rebirths save automatically in your browser on that device. Clearing your browser data, or switching to another device or browser, starts a fresh save.</p></details>
       <details><summary>Is Stickman Parkour safe for kids?</summary><p>Yes. There is no chat, no sign-up and no personal information collected. It is a single-player game with cartoon stickman characters and no violence.</p></details>
       <details><summary>How do you play Stickman Parkour on a phone?</summary><p>On a phone or tablet, on-screen buttons appear: left and right arrows to run, a big jump button, and power-up buttons at the top of the screen.</p></details>
-      <details><summary>What are rebirths in Stickman Parkour?</summary><p>A rebirth costs 1,000 coins and resets your coins, power-ups and level progress, but makes your stickman permanently 7.5% faster with 7.5% higher jumps. You can rebirth up to 20 times.</p></details>
+      <details><summary>What are rebirths in Stickman Parkour?</summary><p>A rebirth costs 1,000 coins and resets your coins, power-ups and level progress, but permanently gives your stickman 7.5% more speed, 7.5% higher jumps and 7.5% more coins from levels and Endless Mode. You can rebirth up to 20 times.</p></details>
   </section>
   <p class="ab-more"><a href="../">More free games on OP Game Hub →</a></p>
 </main>
@@ -888,7 +890,14 @@ const JUMP_MULT = 1.25, SPEED_MULT = 1.35, SLOW_MULT = 0.55;
 const freshActive = () => Object.fromEntries(POWERUPS.map(p => [p.id, 0]));
 let active = freshActive();
 // coins earned during a run go through here so Double Coins applies
-function earn(n) { const g = n * (active.coins2 > 0 ? 2 : 1); addCoins(g); runCoins += g; return g; }
+// Rebirths also boost income: +7.5% coins per rebirth (same multiplier as speed). Fractions carry over between payouts.
+const incomeMult = () => rebirthMult(save.rebirths);
+let coinCarry = 0;
+function earn(n) {
+  const exact = n * (active.coins2 > 0 ? 2 : 1) * incomeMult() + coinCarry;
+  const g = Math.floor(exact + 1e-9); coinCarry = exact - g;
+  addCoins(g); runCoins += g; return g;
+}
 let distSteps = 0;
 let mode = 'levels', lives = LIVES, furthest = 0, distCoins = 0, cpCoins = 0, gen = null;
 
@@ -960,7 +969,7 @@ function gameOver() {
   $('resText').textContent = nb ? `New best distance on ${DIFFS[save.diff].name}!` : `Best on ${DIFFS[save.diff].name}: ${m(best)}`;
   $('resStats').textContent = `${m(furthest)} · ${fmt(levelTime)}`;
   $('resCoins').textContent = `+${runCoins}`;
-  $('resBonus').textContent = `Distance +${distCoins} · Checkpoints +${cpCoins}`;
+  $('resBonus').textContent = `Distance +${distCoins} · Checkpoints +${cpCoins}` + (save.rebirths ? ` · Rebirth +${pct(save.rebirths)} income` : '');
   $('resNext').textContent = 'Run Again';
   show('scrResult'); $('resNext').focus({ preventScroll: true });
 }
@@ -1148,8 +1157,8 @@ function solid(p) {
 function win() {
   state = 'won'; sfx('win');
   burst(level.finish[0], level.finish[1] - 80, C.lime, 60, 380);
-  const mult = active.coins2 > 0 ? 2 : 1;
-  const base = levelCoins(lvl) * mult, flawless = (deaths === 0 ? FLAWLESS_BONUS : 0) * mult;
+  const mult = active.coins2 > 0 ? 2 : 1, inc = incomeMult();
+  const base = Math.round(levelCoins(lvl) * mult * inc), flawless = Math.round((deaths === 0 ? FLAWLESS_BONUS : 0) * mult * inc);
   addCoins(base + flawless);
   const prevBest = save.best[bestKey(lvl)];
   const newBest = prevBest == null || levelTime < prevBest;
@@ -1164,7 +1173,7 @@ function win() {
     $('resText').textContent = last ? 'That is every level for now. Try Endless Mode to keep earning coins.' : `Next up: ${LEVELS[lvl+1].name}.`;
     $('resStats').textContent = `${DIFFS[save.diff].name} · ${fmt(levelTime)}${newBest ? ' · new best' : ''} · ${deaths} ${deaths === 1 ? 'death' : 'deaths'}`;
     $('resCoins').textContent = `+${base + flawless + runCoins}`;
-    $('resBonus').textContent = [runCoins ? `Checkpoints +${runCoins}` : '', `Clear +${base}`, flawless ? `Flawless +${flawless}` : '', mult > 1 ? 'Double Coins!' : ''].filter(Boolean).join(' · ');
+    $('resBonus').textContent = [runCoins ? `Checkpoints +${runCoins}` : '', `Clear +${base}`, flawless ? `Flawless +${flawless}` : '', mult > 1 ? 'Double Coins!' : '', save.rebirths ? `Rebirth +${pct(save.rebirths)} income` : ''].filter(Boolean).join(' · ');
     $('resNext').textContent = last ? 'Endless Mode' : 'Next Level';
     show('scrResult'); $('resNext').focus({ preventScroll: true });
   }, 600);
@@ -1847,7 +1856,7 @@ function goHome() {
   $('homeEq').innerHTML = `<b>${nameOf(SKINS, save.skin)}</b> · ${worn.length ? worn.map(n => `<b>${n}</b>`).join(', ') : 'no accessories'}`;
   const rb = save.rebirths;
   $('rbTag').hidden = rb === 0;
-  $('rbTag').textContent = `★ Rebirth ${rb} · +${pct(rb)} speed & jump`;
+  $('rbTag').textContent = `★ Rebirth ${rb} · +${pct(rb)} speed, jump & coins`;
   $('rebirthBtn').textContent = rb >= REBIRTH_MAX ? 'Rebirth · Maxed' : `Rebirth ${rb + 1}`;
   const n = nextLevelIndex();
   $('playBtn').textContent = `Play · Level ${n + 1}`;
@@ -1864,9 +1873,9 @@ function renderRebirth() {
   syncCoins();
   const n = save.rebirths, maxed = n >= REBIRTH_MAX, cost = rebirthCost(n), m = Math.min(n + 1, REBIRTH_MAX);
   $('rbStars').innerHTML = Array.from({ length: REBIRTH_MAX }, (_, i) => `<span class="${i < n ? 'on' : ''}">★</span>`).join('');
-  $('rbNow').textContent = `${n} / ${REBIRTH_MAX}`; $('rbSpdNow').textContent = `+${pct(n)}`; $('rbJmpNow').textContent = `+${pct(n)}`;
+  $('rbNow').textContent = `${n} / ${REBIRTH_MAX}`; $('rbSpdNow').textContent = `+${pct(n)}`; $('rbJmpNow').textContent = `+${pct(n)}`; $('rbIncNow').textContent = `+${pct(n)}`;
   $('rbNext').textContent = maxed ? 'Maxed' : `${m} / ${REBIRTH_MAX}`;
-  $('rbSpdNext').textContent = maxed ? '—' : `+${pct(m)}`; $('rbJmpNext').textContent = maxed ? '—' : `+${pct(m)}`;
+  $('rbSpdNext').textContent = maxed ? '—' : `+${pct(m)}`; $('rbJmpNext').textContent = maxed ? '—' : `+${pct(m)}`; $('rbIncNext').textContent = maxed ? '—' : `+${pct(m)}`;
   const go = $('rbGo');
   go.classList.toggle('confirm', rbArmed > 0);
   if (maxed) { go.disabled = true; go.textContent = 'All 20 rebirths done'; }
@@ -1888,7 +1897,7 @@ function doRebirth() {
   persist(); applyStats(); loadLevel(0);
   sfx('win'); setTimeout(() => sfx('power'), 450);
   renderRebirth();
-  $('rbMsg').textContent = `Rebirth ${save.rebirths} complete! You're now ${pct(save.rebirths)} faster with ${pct(save.rebirths)} higher jumps.`;
+  $('rbMsg').textContent = `Rebirth ${save.rebirths} complete! You're now ${pct(save.rebirths)} faster, jump ${pct(save.rebirths)} higher and earn ${pct(save.rebirths)} more coins.`;
 }
 $('rebirthBtn').addEventListener('click', openRebirth);
 $('rbGo').addEventListener('click', doRebirth);

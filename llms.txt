@@ -1,6 +1,6 @@
 # OP Game Hub
 
-> OP Game Hub (www.opgamehub.com) is a website of free online games for kids and teens. "OP" means overpowered. Every game runs in a web browser on phones, tablets, Chromebooks and computers, with no download, no sign-up, no chat and no personal data collected. Progress saves locally on the player's device.
+> OP Game Hub (www.opgamehub.com) is a website of free online games for kids and teens. "OP" means overpowered. Every game runs in a web browser on phones, tablets, Chromebooks and computers, with no download and no chat. No sign-up is needed to play. Progress saves locally on the player's device. Signing in with Google is optional and gives a player a display name (like @icebot566) and a profile page.
 
 ## Games
 
@@ -10,5 +10,5 @@
 
 - Price: free. No real-money purchases.
 - Platforms: any modern web browser (Chrome, Safari, Edge, Firefox), desktop and mobile.
-- Accounts: none. Saves are stored in the browser on each device.
-- Safety: single player, no chat, no user-generated content, no sign-up.
+- Accounts: optional, via Sign in with Google. Only a display name, the month joined and Google's account ID are stored. No email, real name or photo. Game saves are still stored in the browser on each device. Privacy page: https://www.opgamehub.com/privacy/
+- Safety: single player, no chat, sign-in optional. The only player-made content is display names, which are filtered for rude words.

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player Profile | OP Game Hub</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07060f">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Chakra+Petch:wght@400;600&display=swap">
+<link rel="stylesheet" href="/assets/ophub.css">
+</head>
+<body class="oph-page">
+<div class="oph-wrap">
+  <div class="oph-topbar">
+    <a class="oph-brand" href="/">OP Game <span>Hub</span></a>
+    <div id="ophub-account" class="oph-account"></div>
+  </div>
+
+  <p id="loading" class="oph-muted">Loading…</p>
+
+  <section id="signed-out" class="oph-panel" hidden>
+    <h1>Your profile</h1>
+    <p class="oph-soft">Sign in with Google to get a display name and your own profile page.</p>
+    <div class="oph-row"><button class="oph-btn" type="button" id="signin-btn">Sign in with Google</button></div>
+  </section>
+
+  <section id="missing" class="oph-panel oph-quiet" hidden>
+    <h1>No player with that name</h1>
+    <p class="oph-soft">Check the spelling, or head back to the games.</p>
+    <div class="oph-row"><a class="oph-btn" href="/">Back to OP Game Hub</a></div>
+  </section>
+
+  <div id="profile" class="oph-stack" hidden>
+    <header class="oph-hero">
+      <span id="avatar"></span>
+      <div>
+        <h1 class="oph-name" id="name"></h1>
+        <p class="oph-muted" id="joined"></p>
+      </div>
+    </header>
+
+    <section class="oph-panel oph-quiet">
+      <h2>Progress</h2>
+      <p class="oph-empty" id="progress-text">Cloud saves are coming soon. For now, each game saves on the device you play on.</p>
+    </section>
+
+    <section class="oph-panel oph-quiet">
+      <h2>Games made</h2>
+      <p class="oph-empty" id="games-text">No games yet.</p>
+    </section>
+
+    <section class="oph-panel" id="owner" hidden>
+      <h2>Your account</h2>
+      <p class="oph-soft" id="rename-note">Your display name is public. Your email and real name are never shown or stored.</p>
+      <div class="oph-row">
+        <a class="oph-btn oph-ghost" id="rename" href="/welcome/">Change name</a>
+        <button class="oph-btn oph-ghost" type="button" id="signout">Sign out</button>
+      </div>
+    </section>
+
+    <section class="oph-panel oph-danger" id="danger" hidden>
+      <h2 class="oph-red-text">Delete account</h2>
+      <p class="oph-soft">This removes your display name and profile for good and signs you out. Game progress saved in your browser stays on your device.</p>
+      <div class="oph-row" id="delete-start-row"><button class="oph-btn oph-red oph-ghost" type="button" id="delete-start">Delete my account</button></div>
+      <div id="delete-confirm" class="oph-stack oph-tight" hidden>
+        <label for="delete-name" class="oph-soft">Type <b id="delete-hint"></b> to confirm:</label>
+        <div class="oph-field"><input class="oph-input oph-plain" id="delete-name" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+        <p id="delete-status" class="oph-status oph-bad oph-collapse" aria-live="polite"></p>
+        <div class="oph-row">
+          <button class="oph-btn oph-red" type="button" id="delete-go" disabled>Delete forever</button>
+          <button class="oph-btn oph-ghost" type="button" id="delete-cancel">Keep my account</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="oph-footer"><a href="/">All games</a><a href="/privacy/">Privacy</a></footer>
+</div>
+
+<script src="/assets/ophub.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => { $('loading').hidden = true; $(id).hidden = false; };
+  const pathName = decodeURIComponent(location.pathname.replace(/^\/u\/?/, '').replace(/\/$/, ''));
+
+  $('signin-btn').addEventListener('click', () => OPHub.signIn('/u/'));
+  $('signout').addEventListener('click', () => OPHub.signOut());
+
+  OPHub.ready.then(async (me) => {
+    const mine = me.signedIn && me.user.username;
+
+    if (!pathName) {
+      if (mine) return location.replace('/u/' + encodeURIComponent(me.user.username));
+      if (me.signedIn) return location.replace('/welcome/?return=/u/');
+      return show('signed-out');
+    }
+
+    let player;
+    try {
+      const r = await fetch('/api/users/' + encodeURIComponent(pathName));
+      if (!r.ok) return show('missing');
+      player = await r.json();
+    } catch { return show('missing'); }
+
+    document.title = '@' + player.username + ' | OP Game Hub';
+    $('avatar').replaceWith(OPHub.avatar(player.username, true));
+    $('name').innerHTML = '<span>@</span>';
+    $('name').append(document.createTextNode(player.username));
+    $('joined').textContent = 'Joined ' + OPHub.formatMonth(player.joined);
+
+    const isOwner = mine && me.user.username.toLowerCase() === player.username.toLowerCase();
+    if (isOwner) {
+      $('games-text').textContent = 'No games yet. Making your own games is coming soon.';
+      $('rename').href = '/welcome/?return=' + encodeURIComponent('/u/' + player.username);
+      if (me.user.canRenameAt) {
+        $('rename-note').textContent += ' You can change your name again on ' + new Date(me.user.canRenameAt).toLocaleDateString() + '.';
+      }
+      $('delete-hint').textContent = player.username;
+      $('owner').hidden = false;
+      $('danger').hidden = false;
+    } else {
+      $('progress-text').textContent = 'Progress is private to each player for now.';
+    }
+    show('profile');
+
+    $('delete-start').addEventListener('click', () => {
+      $('delete-start-row').hidden = true;
+      $('delete-confirm').hidden = false;
+      $('delete-name').focus();
+    });
+    $('delete-cancel').addEventListener('click', () => {
+      $('delete-confirm').hidden = true; $('delete-start-row').hidden = false;
+      $('delete-name').value = ''; $('delete-go').disabled = true;
+    });
+    $('delete-name').addEventListener('input', () => {
+      $('delete-go').disabled = $('delete-name').value.trim().toLowerCase() !== player.username.toLowerCase();
+    });
+    $('delete-go').addEventListener('click', async () => {
+      $('delete-go').disabled = true;
+      try {
+        const r = await fetch('/api/account/delete', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ confirm: $('delete-name').value }),
+        }).then((x) => x.json());
+        if (!r.ok) { $('delete-status').textContent = r.reason; $('delete-go').disabled = false; return; }
+        location.href = '/';
+      } catch {
+        $('delete-status').textContent = "Couldn't delete right now. Try again.";
+        $('delete-go').disabled = false;
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

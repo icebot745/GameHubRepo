@@ -1,0 +1,113 @@
+/* OP Game Hub shared styles: design tokens, account chip, and the account pages.
+   Any page can link this. Classes start with "oph-" so they never clash with a game's own CSS. */
+:root {
+  --void: #07060f;
+  --panel: #110e22;
+  --panel-2: #0b0918;
+  --cyan: #2ef6ff;
+  --magenta: #ff2bd6;
+  --lime: #b6ff3b;
+  --amber: #ffb02e;
+  --violet: #9d6bff;
+  --danger: #ff3b5c;
+  --ink: #e9e6ff;
+  --soft: #c9c4ea;
+  --dim: #8d87b8;
+  --line: rgba(141, 135, 184, .35);
+  --display: "Audiowide", "Trebuchet MS", system-ui, sans-serif;
+  --body: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+/* Base for account pages (body class="oph-page"). The hub and games keep their own base styles. */
+.oph-page {
+  margin: 0; min-height: 100vh; background: var(--void); color: var(--ink); font: 18px/1.5 var(--body);
+  background-image: linear-gradient(rgba(138,91,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(138,91,255,.12) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.oph-page *, .oph-page *::before, .oph-page *::after { box-sizing: border-box; }
+.oph-wrap { max-width: 760px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-left, 0px)) 64px; display: flex; flex-direction: column; gap: 28px; }
+.oph-page h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 6vw, 42px); line-height: 1.1; color: var(--cyan); text-shadow: 0 0 10px var(--cyan), 0 0 28px rgba(46,246,255,.4); text-wrap: balance; }
+.oph-page h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 22px; color: var(--lime); letter-spacing: .08em; text-transform: uppercase; }
+.oph-page p { margin: 0; }
+.oph-page a { color: var(--cyan); }
+.oph-muted { color: var(--dim); }
+.oph-page [hidden] { display: none !important; }
+.oph-stack { display: flex; flex-direction: column; gap: 28px; }
+.oph-stack.oph-tight { gap: 12px; }
+.oph-page .oph-red-text { color: var(--danger); }
+.oph-soft { color: var(--soft); }
+
+/* Top bar: brand on the left, account chip on the right */
+.oph-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; }
+.oph-topbar.oph-right { justify-content: flex-end; }
+.oph-brand { font-family: var(--display); font-size: 22px; color: var(--cyan); text-decoration: none; text-shadow: 0 0 8px rgba(46,246,255,.6); white-space: nowrap; }
+.oph-brand span { color: var(--magenta); text-shadow: 0 0 8px rgba(255,43,214,.6); }
+
+/* Account chip (filled in by ophub.js) */
+.oph-account { display: flex; align-items: center; min-height: 44px; }
+.oph-chip {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 14px 4px 4px;
+  border: 2px solid var(--cyan); border-radius: 999px; background: rgba(17,14,34,.9); color: var(--ink);
+  font: 600 18px/1 var(--body); text-decoration: none; box-shadow: 0 0 12px rgba(46,246,255,.35); cursor: pointer;
+}
+.oph-chip:hover { box-shadow: 0 0 20px rgba(46,246,255,.6); }
+.oph-page a.oph-chip { color: var(--ink); }
+.oph-page a.oph-chip.oph-signin { color: var(--cyan); }
+.oph-chip.oph-signin { padding: 4px 18px; font-family: var(--display); font-weight: 400; color: var(--cyan); }
+
+/* Avatar: a neon disc with the first letter of the name */
+.oph-avatar {
+  --c: var(--cyan); flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--c); color: var(--void); font: 400 18px/1 var(--display); box-shadow: 0 0 12px var(--c);
+}
+.oph-avatar.oph-big { width: 96px; height: 96px; font-size: 48px; box-shadow: 0 0 26px var(--c); }
+
+/* Panels, buttons, fields */
+.oph-panel { background: var(--panel); border: 2px solid var(--magenta); border-radius: 8px; padding: 24px; box-shadow: 0 0 18px rgba(255,43,214,.3); display: flex; flex-direction: column; gap: 16px; }
+.oph-panel.oph-quiet { border-color: var(--line); box-shadow: none; }
+.oph-panel.oph-danger { border-color: rgba(255,59,92,.6); box-shadow: none; }
+.oph-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.oph-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 22px;
+  font: 400 18px/1 var(--display); color: var(--void); background: var(--cyan); border: 2px solid var(--cyan);
+  border-radius: 4px; box-shadow: 0 0 12px var(--cyan); cursor: pointer; text-decoration: none;
+}
+.oph-page a.oph-btn { color: var(--void); }
+.oph-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.oph-btn.oph-ghost { background: transparent; color: var(--cyan); box-shadow: none; }
+.oph-page a.oph-btn.oph-ghost { color: var(--cyan); }
+.oph-btn.oph-red { background: var(--danger); border-color: var(--danger); box-shadow: 0 0 12px rgba(255,59,92,.6); }
+.oph-btn.oph-red.oph-ghost { background: transparent; color: var(--danger); box-shadow: none; }
+.oph-btn:focus-visible, .oph-chip:focus-visible, .oph-input:focus-visible, .oph-check input:focus-visible { outline: 3px solid var(--magenta); outline-offset: 3px; }
+
+.oph-field { display: flex; align-items: center; border: 2px solid var(--line); border-radius: 6px; background: var(--panel-2); }
+.oph-field:focus-within { border-color: var(--cyan); box-shadow: 0 0 12px rgba(46,246,255,.35); }
+.oph-at { padding: 0 4px 0 14px; font: 400 24px/1 var(--display); color: var(--magenta); }
+.oph-input { flex: 1; min-width: 0; min-height: 56px; padding: 0 14px 0 4px; border: 0; background: transparent; color: var(--ink); font: 600 24px/1 var(--body); }
+.oph-input:focus-visible { outline: none; }
+.oph-input.oph-plain { padding-left: 14px; font-size: 20px; }
+.oph-status { min-height: 1.5em; font-weight: 600; }
+.oph-status.oph-good { color: var(--lime); }
+.oph-status.oph-bad { color: var(--danger); }
+.oph-status.oph-collapse:empty { display: none; }
+.oph-check { display: flex; gap: 12px; align-items: flex-start; color: var(--soft); cursor: pointer; }
+.oph-check input { flex: none; width: 24px; height: 24px; margin: 2px 0 0; accent-color: var(--cyan); }
+.oph-list { margin: 0; padding-left: 22px; color: var(--soft); display: flex; flex-direction: column; gap: 6px; }
+.oph-tip { border-left: 4px solid var(--amber); padding: 6px 0 6px 14px; color: var(--soft); }
+.oph-tip b { color: var(--amber); }
+
+/* Profile */
+.oph-hero { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.oph-hero .oph-name { font-family: var(--display); font-size: clamp(30px, 7vw, 44px); line-height: 1.1; color: var(--cyan); text-shadow: 0 0 10px var(--cyan), 0 0 28px rgba(46,246,255,.4); overflow-wrap: anywhere; }
+.oph-hero .oph-name span { color: var(--magenta); text-shadow: 0 0 10px var(--magenta); }
+.oph-empty { border: 2px dashed var(--line); border-radius: 6px; padding: 18px; color: var(--dim); background: repeating-linear-gradient(45deg, #0b0918 0 14px, #100c20 14px 28px); }
+
+/* Toast for sign-in messages */
+.oph-toast {
+  position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 50;
+  max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: 6px; background: var(--panel); color: var(--ink);
+  border: 2px solid var(--amber); box-shadow: 0 0 18px rgba(255,176,46,.45); font: 600 18px/1.4 var(--body);
+}
+.oph-footer { color: var(--dim); font-size: 16px; display: flex; gap: 16px; flex-wrap: wrap; }
+.oph-footer a { color: var(--dim); }
